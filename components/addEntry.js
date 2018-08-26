@@ -3,8 +3,8 @@ import {
   View,
   TouchableOpacity,
   Text,
-  Platform,
-  StyleSheet
+  StyleSheet,
+  Platform
 } from 'react-native'
 import {
   getMetricMetaInfo,
@@ -19,13 +19,14 @@ import TextButton from './TextButton'
 import { submitEntry, removeEntry } from '../utils/api'
 import { connect } from 'react-redux'
 import { addEntry } from '../actions'
-import { white, purple } from '../utils/colors'
+import { purple, white } from '../utils/colors'
+import { NavigationActions } from 'react-navigation'
 
 function SubmitBtn ({ onPress }) {
   return (
     <TouchableOpacity
       style={
-        Platform.OS === 'ios' ? styles.iosSubmitBtn : style.androidSubmitBtn
+        Platform.OS === 'ios' ? styles.iosSubmitBtn : styles.AndroidSubmitBtn
       }
       onPress={onPress}
     >
@@ -33,7 +34,6 @@ function SubmitBtn ({ onPress }) {
     </TouchableOpacity>
   )
 }
-
 class AddEntry extends Component {
   state = {
     run: 0,
@@ -81,7 +81,7 @@ class AddEntry extends Component {
 
     this.setState(() => ({ run: 0, bike: 0, swim: 0, sleep: 0, eat: 0 }))
 
-    // Navigate to home
+    this.toHome()
 
     submitEntry({ key, entry })
 
@@ -96,19 +96,25 @@ class AddEntry extends Component {
       })
     )
 
-    // Route to Home
+    this.toHome()
 
     removeEntry(key)
+  }
+  toHome = () => {
+    this.props.navigation.dispatch(NavigationActions.back({ key: 'AddEntry' }))
   }
   render () {
     const metaInfo = getMetricMetaInfo()
 
     if (this.props.alreadyLogged) {
       return (
-        <View>
-          <Ionicons name={'ios-happy-outline'} size={100} />
+        <View style={styles.center}>
+          <Ionicons
+            name={Platform.OS === 'ios' ? 'ios-happy-outline' : 'md-happy'}
+            size={100}
+          />
           <Text>You already logged your information for today.</Text>
-          <TextButton onPress={this.reset}>
+          <TextButton style={{ padding: 10 }} onPress={this.reset}>
             Reset
           </TextButton>
         </View>
@@ -165,9 +171,9 @@ const styles = StyleSheet.create({
     marginLeft: 40,
     marginRight: 40
   },
-  androidSubmitBtn: {
+  AndroidSubmitBtn: {
     backgroundColor: purple,
-    padding: 30,
+    padding: 10,
     paddingLeft: 30,
     paddingRight: 30,
     height: 45,
@@ -176,10 +182,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
-  submitBtnTetxt: {
+  submitBtnText: {
     color: white,
     fontSize: 22,
     textAlign: 'center'
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 30,
+    marginRight: 30
   }
 })
 
